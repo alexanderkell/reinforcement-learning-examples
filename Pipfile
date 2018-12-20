@@ -10,7 +10,7 @@ ipykernel = "*"
 gym = "*"
 tensorflow = "*"
 matplotlib = "*"
-keras-rl = "*"
+keras-rl = {git = "git://github.com/keras-rl/keras-rl.git"}
 h5py = "*"
 
 [requires]
