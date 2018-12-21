@@ -1,0 +1,3 @@
+[submodule "Examples/Multi-agent examples/Examples/Multi-agent"]
+	path = Examples/Multi-agent examples/Examples/Multi-agent
+	url = https://github.com/openai/multiagent-competition.git
