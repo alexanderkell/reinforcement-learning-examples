@@ -47,7 +47,7 @@ def mlp_model(input, num_outputs, scope, reuse=False, num_units=64, rnn_cell=Non
         return out
 
 def make_env(scenario_name, arglist, benchmark=False):
-    from multiagent.environment import MultiAgentEnv
+    from multiagent.scenarios.electricty_market.market_environment2 import MultiAgentEnv
     import multiagent.scenarios as scenarios
 
     # load scenario from script
