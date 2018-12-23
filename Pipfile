@@ -12,7 +12,11 @@ tensorflow = "*"
 matplotlib = "*"
 keras-rl = {git = "git://github.com/keras-rl/keras-rl.git"}
 h5py = "*"
-mujoco-py = ">=1.50.1,<1.50.2"
+numpy-stl = "*"
+pandas = "*"
+ray = "*"
+rllib = "*"
+mesa = "*"
 
 [requires]
 python_version = "3.6.6"
