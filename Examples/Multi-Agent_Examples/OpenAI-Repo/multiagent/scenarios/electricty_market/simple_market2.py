@@ -50,7 +50,7 @@ class Scenario(BaseScenario):
         # observations whether bids have been accepted or rejected
         for agent in world.agents:
             if agent.u < 50:
-                
+
 
 
         # bid_result = [x.status for x in agent.bids]

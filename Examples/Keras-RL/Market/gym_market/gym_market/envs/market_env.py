@@ -22,18 +22,14 @@ class MarketEnv(gym.Env):
         A market is created where an agent must maximise revenue from selling electricity. In this simple case,
         a bid is accepted as long as the bid submitted is smaller than 50. Therefore, the agent should learn to
         always bid 49.99
-
     Observation:
         Type: Discrete(4)
         Num	Observation                 0         1
         0	Bid status                  rejected  accepted
-
-
     Actions:
         Type: Box()
         Num	Range
         0	-inf, inf   Bid made to sell electricty
-
         Note: The amount the velocity is reduced or increased is not fixed as it depends on the angle the pole is pointing. This is because the center of gravity of the pole increases the amount of energy needed to move the cart underneath it
     Reward:
         Reward is 0.1 for every unit of money earned

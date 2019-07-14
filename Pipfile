@@ -14,9 +14,14 @@ keras-rl = {git = "git://github.com/keras-rl/keras-rl.git"}
 h5py = "*"
 numpy-stl = "*"
 pandas = "*"
-ray = "*"
-rllib = "*"
 mesa = "*"
+seaborn = "*"
+sklearn = "*"
+psutil = "*"
+setproctitle = "*"
+cython = "*"
+jupyter = "*"
+ray = "*"
 
 [requires]
 python_version = "3.6.6"
