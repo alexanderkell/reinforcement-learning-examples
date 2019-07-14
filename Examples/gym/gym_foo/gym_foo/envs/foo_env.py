@@ -71,11 +71,22 @@ if __name__ == "__main__":
 
     def policy_mapping_fn(agent_id):
         # print("agent_id is: {}".format(agent_id))
-        # return agent_id
-        if agent_id < 5:
+        # return "agent_1"
+        if agent_id < 7:
             return "agent_1"
         else:
             return "agent_2"
+
+        # if agent_id < 2:
+        #     return "agent_1"
+        # elif agent_id < 4:
+        #     return "agent_2"
+        # elif agent_id < 6:
+        #     return "agent_3"
+        # elif agent_id < 8:
+        #     return "agent_4"
+        # elif agent_id < 10:
+        #     return "agent_5"
 
     ray.init()
     obs_space = FooEnv().observation_space
@@ -86,54 +97,58 @@ if __name__ == "__main__":
     policies = {
         "agent_1": (PPOTFPolicy, obs_space, action_space, {}),
         "agent_2": (PPOTFPolicy, obs_space, action_space, {}),
+        "agent_3": (PPOTFPolicy, obs_space, action_space, {}),
+        "agent_4": (PPOTFPolicy, obs_space, action_space, {}),
+        "agent_5": (PPOTFPolicy, obs_space, action_space, {}),
     }
 
-    # tune.run(
-    #     "PPO",
-    #     stop={
-    #         "timesteps_total": 1000000,
-    #     },
-    #     config={
-    #         "env": "market23_env",  # or "corridor" if registered above
-    #         "lr": grid_search([1e-2, 1e-4, 1e-6]),  # try different lrs
-    #         "num_workers": 3,  # parallelism
-    #         "env_config": {
-    #                 "number_of_agents": 20,
-    #             },
-    #         "timesteps_per_iteration": 1000,
-    #         "min_iter_time_s": 3,
-    #         # "buffer_size": 1000,
-    #         # "learning_starts": 1000,
-    #         # "train_batch_size": 128,
-    #         # "sample_batch_size": 32,
-    #         # "target_network_update_freq": 500,
-    #         "multiagent": {
-    #             "policies": {
-    #                 # the first tuple value is None -> uses default policy
-    #                 "agent_1": (None, obs_space, action_space, {}),
-    #                 "agent_2": (None, obs_space, action_space, {})
-    #             },
-    #             "policy_mapping_fn":
-    #                 lambda agent_id: policy_mapping_fn,
-    #         }
-    #     }
-    # )
-
-    ppo_trainer = PPOTrainer(
-        env="market23_env",
+    tune.run(
+        "PPO",
+        stop={
+            "timesteps_total": 1000000,
+        },
         config={
+            "env": "market23_env",  # or "corridor" if registered above
+            # "lr": grid_search([1e-2, 1e-4, 1e-6]),  # try different lrs
+            "lr": grid_search([1e-4]),  # try different lrs
+            "num_workers": 3,  # parallelism
+            "env_config": {
+                    "number_of_agents": 20,
+                },
+            "timesteps_per_iteration": 1000,
+            "min_iter_time_s": 3,
+            # "buffer_size": 1000,
+            # "learning_starts": 1000,
+            # "train_batch_size": 128,
+            # "sample_batch_size": 32,
+            # "target_network_update_freq": 500,
             "multiagent": {
-                "policies": policies,
-                "policy_mapping_fn": policy_mapping_fn,
-                "policies_to_train": ["agent_1", "agent_2"],
-            },
-            # disable filters, otherwise we would need to synchronize those
-            # as well to the DQN agent
-            # "observation_filter": "NoFilter",
-        })
+                "policies": {
+                    # the first tuple value is None -> uses default policy
+                    "agent_1": (None, obs_space, action_space, {}),
+                    "agent_2": (None, obs_space, action_space, {})
+                },
+                "policy_mapping_fn":
+                    tune.function(lambda agent_id: "agent_1" if agent_id < 7 else "agent_2"),
+            }
+        }
+    )
 
-    for i in range(100):
-        print(pretty_print(ppo_trainer.train()))
+    # ppo_trainer = PPOTrainer(
+    #     env="market23_env",
+    #     config={
+    #         "multiagent": {
+    #             "policies": policies,
+    #             "policy_mapping_fn": policy_mapping_fn,
+    #             "policies_to_train": ["agent_1", "agent_2"],
+    #         },
+    #         # disable filters, otherwise we would need to synchronize those
+    #         # as well to the DQN agent
+    #         # "observation_filter": "NoFilter",
+    #     })
+
+    # for i in range(100):
+    #     print(pretty_print(ppo_trainer.train()))
 
     # config = {
     #     "num_gpus": 0,
