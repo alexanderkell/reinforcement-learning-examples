@@ -18,19 +18,18 @@ from ray.rllib.agents.ppo.ppo import PPOTrainer
 from ray.rllib.agents.ppo.ppo_policy import PPOTFPolicy
 from ray.rllib.tests.test_multi_agent_env import MultiCartpole
 
-
 import ray
 import ray.rllib.agents.ppo as ppo
 
 
 
 class FooEnv(MultiAgentEnv):
+    action_space = spaces.Box(low=-1, high=1000, shape=(1,), dtype=np.float)
+    observation_space = spaces.Box(low=-1000, high=1000, shape=(1,), dtype=np.float)
 
     def __init__(self, number_of_agents=10):
         self.number_of_agents = number_of_agents
 
-        self.action_space = spaces.Box(low=-1, high=1000, shape=(1,), dtype=np.float)
-        self.observation_space = spaces.Box(low=-1, high=1000, shape=(1,), dtype=np.float)
         print("Initting FooEnv")
         self.total_capacity_required = 50
         self.number_of_steps = 0
@@ -43,64 +42,64 @@ class FooEnv(MultiAgentEnv):
         obs = {}
         total_capacity_required = 50
         for key, action in sorted_dict.items():
-            total_capacity_required -= 10
-
             if total_capacity_required > 0:
                 reward_dict[key] = action[0]
-                obs[key] = [action[0]]
+                obs[key] = np.array(action[0]).reshape(1,)
             else:
                 reward_dict[key] = np.array(0)
-                obs[key] = [np.array(0)]
-# 
+                # obs[key] = [np.array(0)]
+                obs[key] = np.array(0).reshape(1,)
+            
+            total_capacity_required -= 10
         if self.number_of_steps < 50:
             dones = {"__all__": False}
         else:
             dones = {"__all__": True}
         infos = {}
-        # print("reward_dict: {}".format(reward_dict))
         return obs, reward_dict, dones, infos
              
     def reset(self):
         self.total_capacity_required = 50
 
-        # return {"agent_1": np.array(0).reshape(1,), "agent_2": np.array(0).reshape(1,)}
-        return {i: [np.array(0)] for i, _ in enumerate(range(self.number_of_agents))}
+        # return {"agent_{}".format(i+1): [np.array(0)] for i, _ in enumerate(range(self.number_of_agents))}
+        return {"agent_{}".format(i+1): np.array(0).reshape(1,) for i, _ in enumerate(range(self.number_of_agents))}
 
 
 if __name__ == "__main__":
 
-    def policy_mapping_fn(agent_id):
-        # print("agent_id is: {}".format(agent_id))
-        # return "agent_1"
-        if agent_id < 7:
-            return "agent_1"
-        else:
-            return "agent_2"
-
-        # if agent_id < 2:
-        #     return "agent_1"
-        # elif agent_id < 4:
-        #     return "agent_2"
-        # elif agent_id < 6:
-        #     return "agent_3"
-        # elif agent_id < 8:
-        #     return "agent_4"
-        # elif agent_id < 10:
-        #     return "agent_5"
-
     ray.init()
-    obs_space = FooEnv().observation_space
-    action_space = FooEnv().action_space
+    # obs_space = FooEnv.observation_space
+    # action_space = FooEnv.action_space
 
-    register_env("market23_env", lambda _: FooEnv())
+    obs_space_1 = Tuple([FooEnv.observation_space]*8)
+    action_space_1 = Tuple([FooEnv.action_space]*8)
+    obs_space_2 = Tuple([FooEnv.observation_space]*2)
+    action_space_2 = Tuple([FooEnv.action_space]*2)
 
-    policies = {
-        "agent_1": (PPOTFPolicy, obs_space, action_space, {}),
-        "agent_2": (PPOTFPolicy, obs_space, action_space, {}),
-        "agent_3": (PPOTFPolicy, obs_space, action_space, {}),
-        "agent_4": (PPOTFPolicy, obs_space, action_space, {}),
-        "agent_5": (PPOTFPolicy, obs_space, action_space, {}),
+    # grouping = {
+    #     "group_1": {
+    #         "members": ['agent_1', "agent_2", 'agent_3', 'agent_4', 'agent_5', 'agent_6', 'agent_7', 'agent_8'],
+    #         "obs_space": obs_space_1,
+    #         "action_space": action_space_1
+    #     },
+    #     "group_2": {
+    #         "members": ['agent_9', 'agent_10'],
+    #         "obs_space": obs_space_2,
+    #         "action_space": action_space_2
+    #     }
+    # }
+    grouping = {
+        "group_1":
+            ['agent_1', "agent_2", 'agent_3', 'agent_4', 'agent_5', 'agent_6', 'agent_7', 'agent_8'],
+        "group_2":
+            ['agent_9', 'agent_10']
+        
     }
+
+    
+
+    register_env("market23_env", lambda config: FooEnv().with_agent_groups(grouping))
+    # register_env("market23_env", lambda config: FooEnv())
 
     tune.run(
         "PPO",
@@ -110,27 +109,20 @@ if __name__ == "__main__":
         config={
             "env": "market23_env",  # or "corridor" if registered above
             # "lr": grid_search([1e-2, 1e-4, 1e-6]),  # try different lrs
-            "lr": grid_search([1e-4]),  # try different lrs
             "num_workers": 3,  # parallelism
-            "env_config": {
-                    "number_of_agents": 20,
-                },
-            "timesteps_per_iteration": 1000,
-            "min_iter_time_s": 3,
-            # "buffer_size": 1000,
-            # "learning_starts": 1000,
-            # "train_batch_size": 128,
-            # "sample_batch_size": 32,
-            # "target_network_update_freq": 500,
             "multiagent": {
+                # "grouping":
+                #     grouping,
                 "policies": {
                     # the first tuple value is None -> uses default policy
-                    "agent_1": (None, obs_space, action_space, {}),
-                    "agent_2": (None, obs_space, action_space, {})
+                    "function_1": (None, obs_space_1, action_space_1, {}),
+                    "function_2": (None, obs_space_2, action_space_2, {})
                 },
                 "policy_mapping_fn":
-                    tune.function(lambda agent_id: "agent_1" if agent_id < 7 else "agent_2"),
-            }
+                    # tune.function(lambda agent_id: "agent_{}".format(agent_id+1)),
+                    tune.function(lambda agent_id: "function_1" if agent_id == "group_1" else "function_2"),
+            },
+            "log_level": "DEBUG"
         }
     )
 
