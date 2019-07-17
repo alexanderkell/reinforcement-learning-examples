@@ -31,7 +31,6 @@ class FooEnv(MultiAgentEnv):
         self.number_of_agents = number_of_agents
 
         print("Initting FooEnv")
-        self.total_capacity_required = 50
         self.number_of_steps = 0
 
     def step(self, action_dict):
@@ -46,7 +45,7 @@ class FooEnv(MultiAgentEnv):
                 reward_dict[key] = action[0]
                 obs[key] = np.array(action[0]).reshape(1,)
             else:
-                reward_dict[key] = np.array(0)
+                reward_dict[key] = np.array(-10)
                 # obs[key] = [np.array(0)]
                 obs[key] = np.array(0).reshape(1,)
             
@@ -59,10 +58,10 @@ class FooEnv(MultiAgentEnv):
         return obs, reward_dict, dones, infos
              
     def reset(self):
-        self.total_capacity_required = 50
-
+        self.number_of_steps = 0
         # return {"agent_{}".format(i+1): [np.array(0)] for i, _ in enumerate(range(self.number_of_agents))}
         return {"agent_{}".format(i+1): np.array(0).reshape(1,) for i, _ in enumerate(range(self.number_of_agents))}
+        # return {"agent_{}".format(i+1): 0 for i, _ in enumerate(range(self.number_of_agents))}
 
 
 if __name__ == "__main__":
