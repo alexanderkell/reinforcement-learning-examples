@@ -71,8 +71,8 @@ if __name__ == "__main__":
     # obs_space = FooEnv.observation_space
     # action_space = FooEnv.action_space
 
-    obs_space_1 = Tuple([FooEnv.observation_space]*8)
-    action_space_1 = Tuple([FooEnv.action_space]*8)
+    obs_space_1 = Tuple([FooEnv.observation_space]*10)
+    action_space_1 = Tuple([FooEnv.action_space]*10)
     obs_space_2 = Tuple([FooEnv.observation_space]*2)
     action_space_2 = Tuple([FooEnv.action_space]*2)
 
@@ -90,9 +90,9 @@ if __name__ == "__main__":
     # }
     grouping = {
         "group_1":
-            ['agent_1', "agent_2", 'agent_3', 'agent_4', 'agent_5', 'agent_6', 'agent_7', 'agent_8'],
-        "group_2":
-            ['agent_9', 'agent_10']
+            ['agent_1', "agent_2", 'agent_3', 'agent_4', 'agent_5', 'agent_6', 'agent_7', 'agent_8', 'agent_9', 'agent_10'],
+        # "group_2":
+            # ['agent_9', 'agent_10']
         
     }
 
